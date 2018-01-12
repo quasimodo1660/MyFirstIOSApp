@@ -10,7 +10,13 @@ import UIKit
 
 class ViewController: UIViewController {
     @IBOutlet var questionLabel: UILabel!
-    @IBOutlet var answerLabel: UILabel!
+    
+    
+    @IBOutlet var tu: UITextField!
+    @IBOutlet var tp: UITextField!
+    
+    
+    
     let quizBank = [
         ("What is the first step of iOS development?", "Create the user interface. As we create the UI, we will get a better understanding of our application. Then we breath life into our application."),
         ("Why do we use Autolayout?", "We use Autolayout to set constraints on our View objects so that it can adapt to different screen sizes and to different orientations (portrait or landscape)"),
@@ -19,15 +25,41 @@ class ViewController: UIViewController {
         ("What is the View in MVC responsible for?", "View objects are objects that can be seen by the user (objects you drag into the storyboard). Some examples are labels and buttons."),
         ("What is the Controller in MVC responsible for?", "Controller objects facilitate the communication between the Model and the View since the Model and the View should never directly talk to each other (remember the Model knows nothing about the user interface).")
     ]
+    var currentQuestion = 0
     
-    @IBAction func answerButton(_ sender: UIButton) {
+    @IBAction func sendRequest(_ sender: UIButton) {
+        let userName = tu.text
+        let psd = tp.text
+        var request = URLRequest(url: URL(string:"http://127.0.0.1:8000/accounts/login/")!);
+        request.httpMethod = "POST"
+        let postString = "username=\(String(describing: userName))&password=\(String(describing: psd))"
+        request.httpBody = postString.data(using: .utf8)
+        let task = URLSession.shared.dataTask(with: request){ data, response, error in
+            if error != nil{
+                print(error!)
+            }
+            else{
+                print("sent")
+            }
+            
+        }
+        task.resume()
+        
     }
+   
     
     @IBAction func nextButton(_ sender: UIButton) {
+        if currentQuestion < quizBank.count-1 {
+            currentQuestion += 1
+        }
+        else{
+            currentQuestion = 0
+        }
+        updateUI()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        updateUI()
     }
 
     override func didReceiveMemoryWarning() {
@@ -38,6 +70,8 @@ class ViewController: UIViewController {
         // set questionLabel's text to equal quizBank[currentQuestion].0
         // set answerLabel's text to equal quizBank[currentQuestion].1
         // then set answerLabel to be hidden
+        questionLabel.text = quizBank[currentQuestion].0
+       
     }
 
 }
